@@ -4,7 +4,7 @@ FROM \
 LABEL \
     name="bifrost-cge_mlst" \
     description="Docker environment for cge_mlst in bifrost" \
-    version="2.0" \
+    version="2.0.5" \
     DBversion="29/07/2019" \
     maintainer="kimn@ssi.dk;"
 
