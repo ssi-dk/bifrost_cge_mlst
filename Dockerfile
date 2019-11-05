@@ -1,5 +1,5 @@
 FROM \
-    ssidk/bifrost-base:2.0
+    ssidk/bifrost-base:2.0.5
 
 LABEL \
     name="bifrost-cge_mlst" \
@@ -22,7 +22,8 @@ RUN \
     git clone --branch 1.2.10a https://bitbucket.org/genomicepidemiology/kma.git; \
     cd kma; \
     make;
-ENV PATH $PATH":/bifrost_resources/kma/"
+ENV \
+    PATH $PATH":/bifrost_resources/kma/"
 RUN \
     cd /bifrost_resources; \
     # Install cge MLST
@@ -31,7 +32,8 @@ RUN \
     cd mlst; \
     # Grabbing specific version with matrix output
     git checkout 96e62e3;
-ENV PATH $PATH":/bifrost_resources/mlst/"
+ENV \
+    PATH $PATH":/bifrost_resources/mlst/"
 RUN \
     cd /bifrost_resources; \
     # Install cge MLST DB
@@ -40,10 +42,13 @@ RUN \
     # grab specific commit for date assurance 2019/07/29
     cd mlst_db; \
     git checkout ced7b97;
-ENV MLST_DB "/bifrost_resources/mlst_db" 
+ENV \
+    MLST_DB "/bifrost_resources/mlst_db" 
 RUN \
     cd /bifrost_resources/mlst_db; \
     python3 INSTALL.py kma_index; 
 
 ENTRYPOINT \
-    ["/bifrost_resources/docker_umask_002.sh"]
+    [ "/bifrost/whats_my_species/launcher.py"]
+CMD \
+    [ "/bifrost/whats_my_species/launcher.py", "--help"]
