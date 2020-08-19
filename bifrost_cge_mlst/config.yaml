@@ -1,15 +1,15 @@
 #-Basic info----------------------------------------------------------------------------------------
-name: cge_mlst
-version: 2.0.7
+display_name: cge_mlst
+name: &name cge_mlst__unspecified__unspecified
+version:
+  schema: 2.0
+  code: unspecified
+  resource: unspecified
 #---------------------------------------------------------------------------------------------------
 
 #-Details-------------------------------------------------------------------------------------------
 details:
-  category: mlst
-  schema_version: 2.0
   target: sample
-  type: pipeline
-  recommendation: recommended
   description: >
     This preforms read based mapping against the mlst DB's. The mlst DB's are mapped against the 
     species table in mongoDB via the mlst_species_mapping variable. Multiple mlst's can be run against 
@@ -17,9 +17,16 @@ details:
     cge_db using kma mode. 
 #---------------------------------------------------------------------------------------------------
 
-#-Docker location-----------------------------------------------------------------------------------
-dockerfile: &dockerfile "docker://ssidk/bifrost-cge_mlst:2.0.7"
+#-Category info-------------------------------------------------------------------------------------
+category: [mlst]
 #---------------------------------------------------------------------------------------------------
+
+#-Install-------------------------------------------------------------------------------------------
+install:
+  path: # Set by install program
+  dockerfile: docker://ssidk/bifrost_cge_mlst:unspecified__unspecified
+#---------------------------------------------------------------------------------------------------
+
 
 #-Options-------------------------------------------------------------------------------------------
 options:
@@ -149,6 +156,7 @@ options:
     "Streptococcus uberis": [suberis]
     "Streptococcus zooepidemicus": [szooepidemicus]
     "Taylorella": [taylorella]
+    "Taylorella equigenitalis": [taylorella]
     "Tenacibaculum": [tenacibaculum]
     "Treponema pallidum": [tpallidum]
     "Trichomonas vaginalis": [tvaginalis]
@@ -168,7 +176,7 @@ options:
 
 #-Required resource files---------------------------------------------------------------------------
 resources:
-  database_path: "/bifrost_resources/mlst_db"
+  database_path: "/bifrost_cge_mlst/resources/mlst_db"
 #---------------------------------------------------------------------------------------------------
 
 #-Requirements to run component---------------------------------------------------------------------
@@ -305,6 +313,7 @@ requirements:
             - Streptococcus uberis
             - Streptococcus zooepidemicus
             - Taylorella
+            - Taylorella equigenitalis
             - Tenacibaculum
             - Treponema pallidum
             - Trichomonas vaginalis
@@ -335,7 +344,7 @@ db_values_changes:
     report:
       mlst:
         title: "MLST"
-        info: *dockerfile
+        info: *name
         columns: 
           - {id: "db", name: "db"}
           - {id: "strain", name: "strain"}
