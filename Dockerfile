@@ -74,7 +74,7 @@ ENV PATH /${NAME}/resources/mlst:$PATH
 #- Tools to install:end ----------------------------------------------------------------------------
 
 #- Additional resources (files/DBs): start ---------------------------------------------------------
-# Resfinder DB from 200817
+# MLST DB from 200817
 WORKDIR /${NAME}/resources
 RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
