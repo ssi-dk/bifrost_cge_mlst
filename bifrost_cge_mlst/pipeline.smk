@@ -67,7 +67,7 @@ rule cge_mlst:
     params:
         sampleComponentObj = bifrost_sampleComponentObj
     script:
-        os.path.join(os.path.dirname(workflow.snakefile), "scripts/rule__cge_mlst.py")
+        os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************
 
 #- Templated section: start ------------------------------------------------------------------------
