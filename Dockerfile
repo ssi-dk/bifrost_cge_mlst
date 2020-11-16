@@ -74,7 +74,7 @@ WORKDIR /${NAME}/resources
 RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
     cd mlst_db && \ 
-    git checkout ab0085f && \
+    git checkout 7332a90 && \
     python3 INSTALL.py kma_index;
 # - Additional resources (files/DBs): end -----------------------------------------------------------
 
