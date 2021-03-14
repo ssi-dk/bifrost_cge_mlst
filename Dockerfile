@@ -26,8 +26,8 @@ ONBUILD RUN \
     pip install -q \
         cgecore==1.5.6 \
         tabulate==0.8.9 \
-        biopython==1.77; \
-        gitpython==3.1.14; \
+        biopython==1.77 \
+        gitpython==3.1.14 \
         python-dateutil==2.8.1;
 # KMA
 ONBUILD WORKDIR /${NAME}/resources
