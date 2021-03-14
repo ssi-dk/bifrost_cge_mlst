@@ -94,8 +94,8 @@ WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}/resources
 RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
     cd mlst_db && \ 
-# Updated on 21/02/25
-    git checkout 8a721f0 && \ 
+# Updated on 14/03/21
+    git checkout 817f7b1 && \ 
     python3 INSTALL.py kma_index;
 
 #---------------------------------------------------------------------------------------------------
