@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bifrost_cge_mlst',
-    version='temp',
+    version='v_2_1_1',
     url='https://github.com/ssi-dk/bifrost_cge_mlst',
 
     # Author details
@@ -19,6 +19,6 @@ setup(
     include_package_data=True,
 
     install_requires=[
-        'bifrostlib==2.0.11'
+        'bifrostlib==2.1.9'
     ]
 )
