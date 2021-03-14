@@ -78,7 +78,6 @@ rule check_requirements:
 #* Dynamic section: start **************************************************************************
 rule_name = "cge_mlst"
 rule cge_mlst:
-    # Static
     message:
         f"Running step:{rule_name}"
     log:
@@ -86,15 +85,17 @@ rule cge_mlst:
         err_file = f"{component['name']}/log/{rule_name}.err.log",
     benchmark:
         f"{component['name']}/benchmarks/{rule_name}.benchmark"
-    # Dynamic
     input:
         check_file = rules.check_requirements.output.check_file,
         folder = rules.setup.output.init_file,
         reads = sample['categories']['paired_reads']['summary']['data']
     output:
-        complete = rules.setup.params.folder + "/data.yaml"
+        complete = f"{component['name']}/data.yaml"
     params:
-        sampleComponentObj = samplecomponent
+        samplecomponent_ref_json = samplecomponent.to_reference().json
+        database = component["resources"]["database"]
+    shell:
+        "run_resfinder.py -db_res {params.database} -acq -k ../kma/kma -ifq  {input.reads[0]} {input.reads[1]} > {output.complete}"
     script:
         os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************
@@ -102,14 +103,13 @@ rule cge_mlst:
 #- Templated section: start ------------------------------------------------------------------------
 rule_name = "datadump"
 rule datadump:
-    # Static
     message:
-        "Running step:" + rule_name
+        f"Running step:{rule_name}"
     log:
-        out_file = component_name + "/log/" + rule_name + ".out.log",
-        err_file = component_name + "/log/" + rule_name + ".err.log",
+        out_file = f"{component['name']}/log/{rule_name}.out.log",
+        err_file = f"{component['name']}/log/{rule_name}.err.log",
     benchmark:
-        component_name + "/benchmarks/" + rule_name + ".benchmark"
+        f"{component['name']}/benchmarks/{rule_name}.benchmark"
     input:
         #* Dynamic section: start ******************************************************************
         rules.cge_mlst.output.complete  # Needs to be output of final rule

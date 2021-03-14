@@ -1,9 +1,9 @@
-# This is intended to run in Github Actions
-# Arg can be set to dev for testing purposes
+# This is intended to run in Local Development (dev) and Github Actions (test/prod)
+# BUILD_ENV options (dev, test, prod) dev for local testing and test for github actions testing on prod ready code
 ARG BUILD_ENV="prod"
-ARG MAINTAINER="kimn@ssi.dk"
+ARG MAINTAINER="kimn@ssi.dk;"
 ARG BIFROST_COMPONENT_NAME="bifrost_cge_mlst"
-ARG FORCE_DOWNLOAD=true
+
 
 #---------------------------------------------------------------------------------------------------
 # Programs for all environments
@@ -19,16 +19,35 @@ ONBUILD LABEL \
     maintainer="${MAINTAINER}"
 ONBUILD RUN \
     conda install -yq -c conda-forge -c bioconda -c default snakemake-minimal==5.7.1; \
-    conda install -yq -c conda-forge -c bioconda -c defaults kraken==1.1.1; \
-    conda install -yq -c conda-forge -c bioconda -c defaults bracken==1.0.0;
+    # For 'make' needed for kma
+    apt-get update && apt-get install -y -qq --fix-missing \
+        build-essential \
+        zlib1g-dev; \
+    pip install -q \
+        cgecore==1.5.6 \
+        tabulate==0.8.9 \
+        biopython==1.77; \
+        gitpython==3.1.14; \
+        python-dateutil==2.8.1;
+# KMA
+ONBUILD WORKDIR /${NAME}/resources
+ONBUILD RUN \
+    # Updated on 21/02/25
+    git clone --branch 1.3.13 https://bitbucket.org/genomicepidemiology/kma.git && \
+    cd kma && \
+    make;
+ONBUILD ENV PATH /${NAME}/resources/kma:$PATH
+# MLST
+ONBUILD WORKDIR /${NAME}/resources
+ONBUILD RUN \
+    # Updated on 21/02/25
+    git clone --branch 2.0.4 https://bitbucket.org/genomicepidemiology/mlst.git
+ONBUILD ENV PATH /${NAME}/resources/mlst:$PATH
+#- Tools to install:end ----------------------------------------------------------------------------
 
-
-# For dev build include testing modules via pytest done on github and in development.
-# Watchdog is included for docker development (intended method) and should preform auto testing 
-# while working on *.py files
-#
-# Test data is in bifrost_run_launcher:dev
-#- Source code (development):start------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+# Base for dev environement
+#---------------------------------------------------------------------------------------------------
 FROM build_base as build_dev
 ONBUILD ARG BIFROST_COMPONENT_NAME
 ONBUILD ARG FORCE_DOWNLOAD
@@ -39,9 +58,9 @@ ONBUILD RUN \
     pip install --no-cache -e file:///bifrost/lib/bifrostlib; \
     pip install --no-cache -e file:///bifrost/components/${BIFROST_COMPONENT_NAME}/
 
-#- Source code (development):end--------------------------------------------------------------------
-
-#- Source code (productopm):start-------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+# Base for production environment
+#---------------------------------------------------------------------------------------------------
 FROM build_base as build_prod
 ONBUILD ARG BIFROST_COMPONENT_NAME
 ONBUILD ARG FORCE_DOWNLOAD
@@ -49,7 +68,6 @@ ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD COPY ./ ./
 ONBUILD RUN \
     pip install -e file:///bifrost/components/${BIFROST_COMPONENT_NAME}/
-#- Source code (productopm):end---------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------
 # Base for test environment (prod with tests)
@@ -63,46 +81,26 @@ ONBUILD RUN \
     pip install -r requirements.txt \
     pip install -e file:///bifrost/components/${BIFROST_COMPONENT_NAME}/
 
-
-#- Use development or production to and add info: start---------------------------------------------
+#---------------------------------------------------------------------------------------------------
+# Additional resources
+# NOTE: with dev the resources folder is copied so many resources may already exist and you can skip 
+# the download step here. Code has been added for this but it should be made more general and robust
+# Right now it is handled with a FORCE_DOWNLOAD variable and a directory check
+#---------------------------------------------------------------------------------------------------
 FROM build_${BUILD_ENV}
 ARG BIFROST_COMPONENT_NAME
 ARG FORCE_DOWNLOAD
 WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}/resources
 RUN \
-    #conda install -yq -c conda-forge -c bioconda -c default snakemake-minimal==5.7.1; \
-    # For 'make' needed for kma
-    apt-get update && apt-get install -y -qq --fix-missing \
-        build-essential \
-        zlib1g-dev; \
-    pip install -q \
-        cgecore==1.5.0 \
-        tabulate==0.8.3 \
-        biopython==1.74;
-RUN \
-    git clone --branch 1.3.3 https://bitbucket.org/genomicepidemiology/kma.git && \
-    cd kma && \
-    make;
-ENV PATH /${BIFROST_COMPONENT_NAME}/resources/kma:$PATH
-# MLST
-WORKDIR /${BIFROST_COMPONENT_NAME}/resources
-RUN \
-    git clone --branch 2.0.4 https://bitbucket.org/genomicepidemiology/mlst.git
-ENV PATH /${BIFROST_COMPONENT_NAME}/resources/mlst:$PATH
-#- Tools to install:end ----------------------------------------------------------------------------
-
-#- Additional resources (files/DBs): start ---------------------------------------------------------
-# MLST DB from 210314
-WORKDIR /${BIFROST_COMPONENT_NAME}/resources
-RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
     cd mlst_db && \ 
-    git checkout 817f7b1 && \
+# Updated on 21/02/25
+    git checkout 8a721f0 && \ 
     python3 INSTALL.py kma_index;
-# - Additional resources (files/DBs): end -----------------------------------------------------------
 
-#- Set up entry point:start ------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
+# Run and entry commands
+#---------------------------------------------------------------------------------------------------
 WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ENTRYPOINT ["python3", "-m", "bifrost_cge_mlst"]
 CMD ["python3", "-m", "bifrost_cge_mlst", "--help"]
-#- Set up entry point:end --------------------------------------------------------------------------

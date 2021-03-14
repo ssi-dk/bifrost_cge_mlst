@@ -3,8 +3,6 @@
 Launcher file for accessing dockerfile commands
 """
 import argparse
-from io import FileIO, StringIO
-import json
 import os
 import sys
 import traceback
@@ -15,9 +13,6 @@ from bifrostlib.datahandling import ComponentReference
 import yaml
 import pprint
 from typing import List, Dict
-
-from yaml.tokens import StreamEndToken
-
 
 global COMPONENT
 
@@ -34,7 +29,7 @@ def initialize():
         component_ref = ComponentReference(name=config["name"])
         COMPONENT = Component.load(component_ref)
         if COMPONENT is not None and '_id' in COMPONENT.json:
-                return
+            return
         else:
             COMPONENT = Component(value=config)
             install_component()
@@ -162,7 +157,7 @@ def run_pipeline(args: argparse.Namespace) -> None:
         print(traceback.format_exc())
 
 
-def main(args = sys.argv):
+def main(args=sys.argv):
     initialize()
     parse_and_run(args)
 

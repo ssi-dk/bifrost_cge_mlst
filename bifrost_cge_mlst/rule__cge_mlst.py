@@ -1,44 +1,56 @@
 # script for use with snakemake
-import sys
 import subprocess
 import traceback
-from bifrostlib import datahandling
+from bifrostlib import common
+from bifrostlib.datahandling import Component, Sample
+from bifrostlib.datahandling import SampleComponentReference
+from bifrostlib.datahandling import SampleComponent
+from bifrostlib.datahandling import Category
+from typing import Dict
+import os
 
 
-def rule__run_cge_mlst(input, output, sampleComponentObj, log):
+def run_cmd(command, log):
+    with open(log.out_file, "a+") as out, open(log.err_file, "a+") as err:
+        command_log_out, command_log_err = subprocess.Popen(command, shell=True).communicate()
+        out.write(command_log_out)
+        err.write(command_log_err)
+
+def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: Dict, log: object) -> None:
     try:
-        this_function_name = sys._getframe().f_code.co_name
-        name, options, resources = sampleComponentObj.start_rule(this_function_name, log=log)
+        samplecomponent_ref = SampleComponentReference(value=samplecomponent_ref_json)
+        samplecomponent = SampleComponent.load(samplecomponent_ref)
+        sample = Sample.load(samplecomponent.sample)
+        component = Component.load(samplecomponent.component)
 
         # Variables being used
-        database_path = resources["database_path"]
+        database_path = component["resources"]["database_path"]
         reads = input.reads  # expected a tuple of read locations
         output_file = output.complete  # a file to mark success for snakemake
-        species = sampleComponentObj.get_sample_properties_by_category("species_detection")["species"]
+        species_detection = sample.get_category("species_detection")
+        species = species_detection["summary"].get("species", None)
 
         # Code to run
-        if species not in options["mlst_species_mapping"]:
-            sampleComponentObj.write_log_out(log, "species {} not in mlst species\n".format(species))
-            sampleComponentObj.rule_run_cmd("touch {}/no_mlst_species_DB".format(name), log)
+        if species not in component["options"]["mlst_species_mapping"]:
+            run_cmd(f"touch {component['name']}/no_mlst_species_DB")
         else:
-            mlst_species = options["mlst_species_mapping"][species]
+            mlst_species = component["options"]["mlst_species_mapping"][species]
             data_dict = {}
             for mlst_entry in mlst_species:
-                mlst_entry_path = "{}/{}".format(name, mlst_entry)
-                sampleComponentObj.rule_run_cmd("if [ -d \"{}\" ]; then rm -r {}; fi".format(mlst_entry_path, mlst_entry_path), log)
-                sampleComponentObj.rule_run_cmd("ls {} -lah".format(database_path), log)
+                mlst_entry_path = f"{component['name']}/{mlst_entry}"
+                run_cmd(f"if [ -d \"{mlst_entry_path}\" ]; then rm -r {mlst_entry_path}; fi")
+                run_cmd(f"ls {database_path} -lah")
+                run_cmd(f"mkdir {mlst_entry_path}; mlst.py - x - matrix - s {mlst_entry} - p {database_path} - mp kma - i {reads[0]} {reads[1]} - o {mlst_entry_path}")
+                data_dict[mlst_entry] = common.get_yaml(f"{mlst_entry_path}/data.json")
+            common.save_yaml(data_dict, output_file)
 
-                sampleComponentObj.rule_run_cmd("mkdir {}; mlst.py -x -matrix -s {} -p {} -mp kma -i {} {} -o {}".format(mlst_entry_path, mlst_entry, database_path, reads[0], reads[1], mlst_entry_path), log)
-                data_dict[mlst_entry] = datahandling.load_yaml("{}/data.json".format(mlst_entry_path))
-            datahandling.save_yaml(data_dict, output_file)
-
-        sampleComponentObj.end_rule(this_function_name, log=log)
     except Exception:
-        sampleComponentObj.write_log_err(log, str(traceback.format_exc()))
+        with open(log.err_file, "w+") as fh:
+            fh.write(traceback.format_exc())
 
 
-rule__run_cge_mlst(
+rule__summarize_variants(
     snakemake.input,
     snakemake.output,
-    snakemake.params.sampleComponentObj,
+    snakemake.params.samplecomponent_ref_json,
     snakemake.log)
