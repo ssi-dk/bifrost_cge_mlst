@@ -92,10 +92,8 @@ rule cge_mlst:
     output:
         complete = f"{component['name']}/data.yaml"
     params:
-        samplecomponent_ref_json = samplecomponent.to_reference().json
-        database = component["resources"]["database"]
-    shell:
-        "run_resfinder.py -db_res {params.database} -acq -k ../kma/kma -ifq  {input.reads[0]} {input.reads[1]} > {output.complete}"
+        samplecomponent_ref_json = samplecomponent.to_reference().json,
+        database = component["resources"]["database_path"]
     script:
         os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************
