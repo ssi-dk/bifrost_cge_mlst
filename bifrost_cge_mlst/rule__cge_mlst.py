@@ -40,7 +40,7 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
             mlst_species = component["options"]["mlst_species_mapping"][species]
             data_dict = {}
             for mlst_entry in mlst_species:
-                print(mlst_entry)
+                #print(mlst_entry)
                 mlst_entry_path = f"{component['name']}/{mlst_entry}"
                 #run_cmd("echo hello world", log)
                 run_cmd(f"if [ -d \"{mlst_entry_path}\" ]; then rm -r {mlst_entry_path}; fi", log)
