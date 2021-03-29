@@ -1,9 +1,9 @@
 #-Basic info----------------------------------------------------------------------------------------
 display_name: cge_mlst
-name: &name cge_mlst__v2_2_2__210314
+name: &name cge_mlst__v2_2_3__210314
 version:
   schema: ["v2_1_0"]
-  code: v2_2_2
+  code: v2_2_3
   resource: "210314"
 #---------------------------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ resources:
 #-Requirements to run component---------------------------------------------------------------------
 requirements:
   sample:
-    properties:
+    categories:
       paired_reads:
         summary:
           data:
@@ -335,7 +335,7 @@ requirements:
 db_values_changes:
   files: []
   sample:
-    properties:
+    categories:
       mlst:
         summary:  # see sample_component summary
         component:

@@ -30,19 +30,20 @@ ONBUILD RUN \
         gitpython==3.1.14 \
         python-dateutil==2.8.1;
 # KMA
-ONBUILD WORKDIR /${NAME}/resources
+ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD RUN \
     # Updated on 21/02/25
     git clone --branch 1.3.13 https://bitbucket.org/genomicepidemiology/kma.git && \
     cd kma && \
     make;
-ONBUILD ENV PATH /${NAME}/resources/kma:$PATH
+ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/kma:$PATH
 # MLST
-ONBUILD WORKDIR /${NAME}/resources
+ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD RUN \
-    # Updated on 21/02/25
-    git clone --branch 2.0.4 https://bitbucket.org/genomicepidemiology/mlst.git
-ONBUILD ENV PATH /${NAME}/resources/mlst:$PATH
+    # Updated on 21/02/25, todo: checkout to a commit that works
+    git clone https://bitbucket.org/genomicepidemiology/mlst.git && \
+    cd mlst && git checkout 4b6cd1a
+ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/mlst:$PATH
 #- Tools to install:end ----------------------------------------------------------------------------
 
 #---------------------------------------------------------------------------------------------------

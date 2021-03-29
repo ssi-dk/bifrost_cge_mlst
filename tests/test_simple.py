@@ -22,8 +22,8 @@ def test_connection():
 
 
 class TestCGEmlst:
-    component_name = "che_mlst__v2_2_1"
-    component_name = component_name + "__210225"
+    component_name = "cge_mlst__v2_2_3"
+    component_name = component_name + "__210314"
     current_dir = os.getcwd()
     test_dir = "/bifrost/test_data/output/test__cge_mlst/"
     json_entries = [
@@ -36,6 +36,11 @@ class TestCGEmlst:
                     "summary": {
                         "data": ["/bifrost/test_data/samples/S1_R1.fastq.gz",
                                  "/bifrost/test_data/samples/S1_R2.fastq.gz"]
+                    }
+                },
+                "species_detection": {
+                    "summary": {
+                        "species": "Staphylococcus aureus"
                     }
                 }
             }
