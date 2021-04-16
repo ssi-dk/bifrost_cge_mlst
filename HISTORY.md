@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## v2_2_4 - 2021-04-16
+### Notes
+Apparently strain is not the same thing as sequence type, so we changed that.
+### Added
+### Changed
+- bifrost_cge_mlst/datadump.py
+  - strain changed to sequence type
+
 ## [v2_2_3] - 2021-03-29
 ### Notes
 Minor rehaul of the scuffed version Martin left. Most upgrades in datadump.
@@ -14,6 +22,7 @@ Minor rehaul of the scuffed version Martin left. Most upgrades in datadump.
   - reworked file to bring it up to day with 2.1 conventions regarding lib and schema
 - tests/test_simple.py
   - named to test_simple, added a species to the sample so we can do proper testing
+ 
 ## [v2_2_1] - 2020-02-24
 ### Notes
 Changes to use the 2_1_0 schema, organizational updates, and updates to tests to make this work. Also updated the scheme for how the docker image is developed on to be from the root for local dev.

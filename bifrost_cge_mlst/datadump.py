@@ -7,44 +7,6 @@ from bifrostlib.datahandling import Category
 from typing import Dict
 import os
 
-
-def extract_cge_mlst_report_and_details(sampleComponentObj):
-    summary, results, file_path, key = sampleComponentObj.start_data_extraction("data.yaml")
-    results[key] = datahandling.load_yaml(file_path)
-    strains = []
-    for mlst_db in results[key]:
-        strain = results[key][mlst_db]["mlst"]["results"]["sequence_type"]
-        strains.append(strain)
-    results["strain"] = strains
-    summary["strain"] = strains
-    return (summary, results)
-
-
-def generate_report(sampleComponentObj):
-    summary, results, file_path, key = sampleComponentObj.start_data_extraction()
-    key = sampleComponentObj.get_file_location_key("data.yaml")
-    data = []
-    for mlst_db in results[key]:
-        strain = results[key][mlst_db]["mlst"]["results"]["sequence_type"]
-        alleles = ", ".join([results[key][mlst_db]["mlst"]["results"]["allele_profile"][i]["allele_name"] for i in results[key][mlst_db]["mlst"]["results"]["allele_profile"]])
-        data.append({
-            "db": mlst_db,
-            "strain": strain,
-            "alleles": alleles
-        })
-    return data
-
-
-# def datadump(sampleComponentObj, log):
-#     sampleComponentObj.start_data_dump(log=log)
-#     sampleComponentObj.run_data_dump_on_function(extract_cge_mlst_report_and_details, log=log)
-#     sampleComponentObj.end_data_dump(generate_report_function=generate_report, log=log)
-
-# datadump(
-#     snakemake.params.sampleComponentObj,
-#     snakemake.log)
-
-
 def extract_mlst(mlst: Category, results: Dict, component_name: str, species) -> None:
     file_name = "data.yaml"
     file_key = common.json_key_cleaner(file_name)
@@ -56,14 +18,14 @@ def extract_mlst(mlst: Category, results: Dict, component_name: str, species) ->
         mlst_run_info = mlst_yaml[subspec]['mlst']['run_info']
         mlst_user_input = mlst_yaml[subspec]['mlst']['user_input']
         sequence_type = mlst_results['sequence_type']
-        mlst['summary']['strain'].append(sequence_type) # maybe extend the string with subspec
+        mlst['summary']['sequence_type'].append(sequence_type) # maybe extend the string with subspec
         alleles = ", ".join(list(mlst_results['allele_profile'].keys()))
         mlst['report']['data'].append({
             "db":subspec,
-            "strain":sequence_type,
+            "sequence_type":sequence_type,
             "alleles":alleles
         })
-    results[file_key]['strain'] = mlst['summary']['strain']
+    results[file_key]['sequence_type'] = mlst['summary']['sequence_type']
 
 def datadump(samplecomponent_ref_json: Dict):
     samplecomponent_ref = SampleComponentReference(value=samplecomponent_ref_json)
@@ -80,7 +42,7 @@ def datadump(samplecomponent_ref_json: Dict):
         mlst = Category(value={
                 "name": "mlst",
                 "component": {"id": samplecomponent["component"]["_id"], "name": samplecomponent["component"]["name"]},
-                "summary": {"strain":[]},
+                "summary": {"sequence_type":[]},
                 "report": {"data":[]}
             }
         )

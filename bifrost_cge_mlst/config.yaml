@@ -1,9 +1,9 @@
 #-Basic info----------------------------------------------------------------------------------------
 display_name: cge_mlst
-name: &name cge_mlst__v2_2_3__210314
+name: &name cge_mlst__v2_2_4__210314
 version:
   schema: ["v2_1_0"]
-  code: v2_2_3
+  code: v2_2_4
   resource: "210314"
 #---------------------------------------------------------------------------------------------------
 
@@ -347,12 +347,12 @@ db_values_changes:
         info: *name
         columns: 
           - {id: "db", name: "db"}
-          - {id: "strain", name: "strain"}
+          - {id: "sequence_type", name: "sequence_type"}
           - {id: "alleles", name: "alleles"}
         data: []
   sample_component:
     summary:
-      strain:  # str for mlst_db
+      sequence_type:  # str for mlst_db
     results:
       cge_mlst/data_yaml: {}
 #---------------------------------------------------------------------------------------------------
