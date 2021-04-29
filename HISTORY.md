@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## v2_2_4 - 2021-04-29
+### Changed
+- bifrost_cge_mlst/datadump.py
+  - sequence_type changed from string to object in summary
 ## v2_2_4 - 2021-04-16
 ### Notes
 Apparently strain is not the same thing as sequence type, so we changed that.
