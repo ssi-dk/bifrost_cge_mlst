@@ -18,7 +18,8 @@ def extract_mlst(mlst: Category, results: Dict, component_name: str, species) ->
         mlst_run_info = mlst_yaml[subspec]['mlst']['run_info']
         mlst_user_input = mlst_yaml[subspec]['mlst']['user_input']
         sequence_type = mlst_results['sequence_type']
-        mlst['summary']['sequence_type'].append(sequence_type) # maybe extend the string with subspec
+        st_obj = {subspec:sequence_type}
+        mlst['summary']['sequence_type'].append(st_obj) # maybe extend the string with subspec
         alleles = ", ".join(list(mlst_results['allele_profile'].keys()))
         mlst['report']['data'].append({
             "db":subspec,
