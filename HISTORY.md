@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## v2_2_6 - 2021-05-04
+### Notes
+By mistake the alleles were locus names instead of the actual allele names.
+Has been fixed, and additionally instead of joining it into a string we
+put it as a dictionary.
+### Changed
+- bifrost_cge_mlst/datadump.py
+  - report alleles changed to dict and summary is a dict as well
 ## v2_2_5 - 2021-04-29
 ### Changed
 - bifrost_cge_mlst/datadump.py
