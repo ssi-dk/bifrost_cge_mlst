@@ -18,12 +18,13 @@ def extract_mlst(mlst: Category, results: Dict, component_name: str, species) ->
         mlst_run_info = mlst_yaml[subspec]['mlst']['run_info']
         mlst_user_input = mlst_yaml[subspec]['mlst']['user_input']
         sequence_type = mlst_results['sequence_type']
-        mlst['summary']['sequence_type'].append(sequence_type) # maybe extend the string with subspec
-        alleles = ", ".join(list(mlst_results['allele_profile'].keys()))
+        mlst['summary']['sequence_type'][subspec]=sequence_type
+        loci = mlst_results['allele_profile'].keys()
+        allele_dict = {locus:mlst_results['allele_profile'][locus]['allele'] for locus in loci}
         mlst['report']['data'].append({
             "db":subspec,
             "sequence_type":sequence_type,
-            "alleles":alleles
+            "alleles":allele_dict
         })
     results[file_key]['sequence_type'] = mlst['summary']['sequence_type']
 
@@ -42,7 +43,7 @@ def datadump(samplecomponent_ref_json: Dict):
         mlst = Category(value={
                 "name": "mlst",
                 "component": {"id": samplecomponent["component"]["_id"], "name": samplecomponent["component"]["name"]},
-                "summary": {"sequence_type":[]},
+                "summary": {"sequence_type":{}},
                 "report": {"data":[]}
             }
         )
