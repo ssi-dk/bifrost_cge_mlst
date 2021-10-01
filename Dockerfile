@@ -8,7 +8,7 @@ ARG BIFROST_COMPONENT_NAME="bifrost_cge_mlst"
 #---------------------------------------------------------------------------------------------------
 # Programs for all environments
 #---------------------------------------------------------------------------------------------------
-FROM continuumio/miniconda3:4.8.2 as build_base
+FROM continuumio/miniconda3:4.10.3 as build_base
 ONBUILD ARG BIFROST_COMPONENT_NAME
 ONBUILD ARG BUILD_ENV
 ONBUILD ARG MAINTAINER
@@ -22,7 +22,10 @@ ONBUILD RUN \
     # For 'make' needed for kma
     apt-get update && apt-get install -y -qq --fix-missing \
         build-essential \
-        zlib1g-dev; \
+        zlib1g-dev \
+        libmagic-dev \
+        nano \
+        less; \
     pip install -q \
         cgecore==1.5.6 \
         tabulate==0.8.9 \
@@ -33,7 +36,7 @@ ONBUILD RUN \
 ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD RUN \
     # Updated on 21/02/25
-    git clone --branch 1.3.13 https://bitbucket.org/genomicepidemiology/kma.git && \
+    git clone --branch 1.3.23 https://bitbucket.org/genomicepidemiology/kma.git && \
     cd kma && \
     make;
 ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/kma:$PATH
@@ -96,7 +99,7 @@ RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
     cd mlst_db && \ 
 # Updated on 14/03/21
-    git checkout 817f7b1 && \ 
+    git checkout b28a536 && \ 
     python3 INSTALL.py kma_index;
 
 #---------------------------------------------------------------------------------------------------
