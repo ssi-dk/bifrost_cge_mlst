@@ -7,6 +7,7 @@ from bifrostlib.datahandling import Category
 from typing import Dict
 import os
 import re
+from git import Repo
 
 def extract_mlst(mlst: Category, results: Dict, component_name: str, species) -> None:
     file_name = "data.yaml"
@@ -34,11 +35,12 @@ def datadump(samplecomponent_ref_json: Dict):
     samplecomponent = SampleComponent.load(samplecomponent_ref)
     sample = Sample.load(samplecomponent.sample)
     component = Component.load(samplecomponent.component)
-    
+    database_path = component["resources"]["database_path"] 
     species_detection = sample.get_category("species_detection")
     species = species_detection["summary"].get("species", None)
     mlst_species = component["options"]["mlst_species_mapping"][species]
-
+    db_repo = Repo(database_path)
+    db_commit = str(db_repo.head.commit)
     mlst = samplecomponent.get_category("mlst")
     #if mlst is None: # remove this line
     mlst = Category(value={
@@ -49,6 +51,7 @@ def datadump(samplecomponent_ref_json: Dict):
         }
     )
     extract_mlst(mlst, samplecomponent["results"], samplecomponent["component"]["name"], mlst_species)
+    mlst['databases'] = {'mlst_db':db_commit}
     samplecomponent.set_category(mlst)
     sample_category = sample.get_category("mlst")
     if sample_category == None:
