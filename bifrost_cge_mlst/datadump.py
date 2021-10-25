@@ -51,7 +51,7 @@ def datadump(samplecomponent_ref_json: Dict):
         }
     )
     extract_mlst(mlst, samplecomponent["results"], samplecomponent["component"]["name"], mlst_species)
-    mlst['databases'] = {'mlst_db':db_commit}
+    mlst['database_versions'] = {'mlst_db':db_commit}
     samplecomponent.set_category(mlst)
     sample_category = sample.get_category("mlst")
     if sample_category == None:
