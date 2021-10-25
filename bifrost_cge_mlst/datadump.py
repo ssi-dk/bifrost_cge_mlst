@@ -6,6 +6,7 @@ from bifrostlib.datahandling import Component
 from bifrostlib.datahandling import Category
 from typing import Dict
 import os
+import re
 
 def extract_mlst(mlst: Category, results: Dict, component_name: str, species) -> None:
     file_name = "data.yaml"
@@ -39,22 +40,35 @@ def datadump(samplecomponent_ref_json: Dict):
     mlst_species = component["options"]["mlst_species_mapping"][species]
 
     mlst = samplecomponent.get_category("mlst")
-    if mlst is None:
-        mlst = Category(value={
-                "name": "mlst",
-                "component": {"id": samplecomponent["component"]["_id"], "name": samplecomponent["component"]["name"]},
-                "summary": {"sequence_type":{}},
-                "report": {"data":[]}
-            }
-        )
+    #if mlst is None: # remove this line
+    mlst = Category(value={
+            "name": "mlst",
+            "component": {"id": samplecomponent["component"]["_id"], "name": samplecomponent["component"]["name"]},
+            "summary": {"sequence_type":{}},
+            "report": {"data":[]}
+        }
+    )
     extract_mlst(mlst, samplecomponent["results"], samplecomponent["component"]["name"], mlst_species)
     samplecomponent.set_category(mlst)
-    sample.set_category(mlst)
+    sample_category = sample.get_category("mlst")
+    if sample_category == None:
+        sample.set_category(mlst)
+    else:
+        current_category_version = extract_digits_from_component_version(mlst['component']['name'])
+        sample_category_version = extract_digits_from_component_version(sample_category['component']['name'])
+        print(current_category_version, sample_category_version)
+        if current_category_version >= sample_category_version:
+            sample.set_category(mlst)
     common.set_status_and_save(sample, samplecomponent, "Success")
     
     with open(os.path.join(samplecomponent["component"]["name"], "datadump_complete"), "w+") as fh:
         fh.write("done")
 
+def extract_digits_from_component_version(component_str):
+    version_re = re.compile(".*__(v.*)__.*")
+    version_group = re.match(version_re, component_str).groups()[0]
+    version_digits = int("".join([i for i in version_group if i.isdigit()]))
+    return version_digits
 datadump(
     snakemake.params.samplecomponent_ref_json,
 )
