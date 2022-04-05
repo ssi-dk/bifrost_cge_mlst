@@ -22,7 +22,7 @@ def test_connection():
 
 
 class TestCGEmlst:
-    component_name = "cge_mlst__v2_2_8"
+    component_name = "cge_mlst__v2_2_9"
     component_name = component_name + "__4b6cd1a"
     current_dir = os.getcwd()
     test_dir = "/bifrost/test_data/output/test__cge_mlst/"
