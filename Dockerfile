@@ -35,8 +35,8 @@ ONBUILD RUN \
 # KMA
 ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD RUN \
-    # Updated on 21/02/25
-    git clone --branch 1.3.23 https://bitbucket.org/genomicepidemiology/kma.git && \
+    # Updated on 22/05/25
+    git clone --branch 1.4.2 https://bitbucket.org/genomicepidemiology/kma.git && \
     cd kma && \
     make;
 ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/kma:$PATH
@@ -44,8 +44,7 @@ ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/kma:$PATH
 ONBUILD WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}
 ONBUILD RUN \
     # Updated on 21/02/25, todo: checkout to a commit that works
-    git clone https://bitbucket.org/genomicepidemiology/mlst.git && \
-    cd mlst && git checkout 4b6cd1a
+    git clone --branch 2.0.9 https://bitbucket.org/genomicepidemiology/mlst.git;
 ONBUILD ENV PATH /bifrost/components/${BIFROST_COMPONENT_NAME}/mlst:$PATH
 #- Tools to install:end ----------------------------------------------------------------------------
 
@@ -98,8 +97,8 @@ WORKDIR /bifrost/components/${BIFROST_COMPONENT_NAME}/resources
 RUN \
     git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git && \
     cd mlst_db && \ 
-# Updated on 14/03/21
-    git checkout b28a536 && \ 
+# Updated on 25/05/22
+    git checkout 5e385d4 && \ 
     python3 INSTALL.py kma_index;
 
 #---------------------------------------------------------------------------------------------------
