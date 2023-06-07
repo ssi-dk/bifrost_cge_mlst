@@ -176,7 +176,7 @@ options:
 
 #-Required resource files---------------------------------------------------------------------------
 resources:
-  database_path: "/bifrost/components/bifrost_cge_mlst/resources/mlst_db"
+  database_path: "resources/mlst_db"
 #---------------------------------------------------------------------------------------------------
 
 #-Requirements to run component---------------------------------------------------------------------
