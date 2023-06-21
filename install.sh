@@ -146,5 +146,7 @@ fi
 if test -f "$CUSTOM_INSTALL_PATH";
 then
   echo -e "\nRunning custom_install.sh"
+  eval "$(conda shell.bash hook)"
+  conda activate $ENV_NAME
   bash $CUSTOM_INSTALL_PATH -i $parameterI
 fi
