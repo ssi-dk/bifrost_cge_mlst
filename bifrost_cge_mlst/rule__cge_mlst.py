@@ -28,7 +28,8 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
         component = Component.load(samplecomponent.component)
 
         # Variables being used
-        database_path = component["resources"]["database_path"]
+        bifrost_install_dir = os.environ['BIFROST_INSTALL_DIR']
+        database_path = f'{bifrost_install_dir}/{component["resources"]["database_path"]}'
         reads = input.reads  # expected a tuple of read locations
         output_file = output.complete  # a file to mark success for snakemake
         species_detection = sample.get_category("species_detection")

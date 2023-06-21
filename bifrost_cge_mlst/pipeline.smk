@@ -36,6 +36,10 @@ onerror:
     if samplecomponent['status'] == "Running":
         common.set_status_and_save(sample, samplecomponent, "Failure")
 
+envvars:
+    "BIFROST_INSTALL_DIR",
+    "CONDA_PREFIX"
+
 rule all:
     input:
         # file is defined by datadump function
@@ -74,7 +78,6 @@ rule check_requirements:
                 fh.write("")
 
 #- Templated section: end --------------------------------------------------------------------------
-
 #* Dynamic section: start **************************************************************************
 rule_name = "cge_mlst"
 rule cge_mlst:
@@ -93,7 +96,8 @@ rule cge_mlst:
         complete = f"{component['name']}/data.yaml"
     params:
         samplecomponent_ref_json = samplecomponent.to_reference().json,
-        database = component["resources"]["database_path"]
+        bifrost_install_dir = f"{os.environ['BIFROST_INSTALL_DIR']}",
+        database = f"{bifrost_install_dir}/{component["resources"]["database_path"]}",
     script:
         os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************
