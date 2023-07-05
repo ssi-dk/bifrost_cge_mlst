@@ -29,12 +29,17 @@ try:
 except Exception as error:
     print(traceback.format_exc(), file=sys.stderr)
     raise Exception("failed to set sample, component and/or samplecomponent")
-
 onerror:
     if not samplecomponent.has_requirements():
         common.set_status_and_save(sample, samplecomponent, "Requirements not met")
     if samplecomponent['status'] == "Running":
         common.set_status_and_save(sample, samplecomponent, "Failure")
+
+
+envvars:
+    "BIFROST_INSTALL_DIR",
+    "CONDA_PREFIX"
+
 
 rule all:
     input:
@@ -74,7 +79,6 @@ rule check_requirements:
                 fh.write("")
 
 #- Templated section: end --------------------------------------------------------------------------
-
 #* Dynamic section: start **************************************************************************
 rule_name = "cge_mlst"
 rule cge_mlst:
@@ -92,8 +96,7 @@ rule cge_mlst:
     output:
         complete = f"{component['name']}/data.yaml"
     params:
-        samplecomponent_ref_json = samplecomponent.to_reference().json,
-        database = component["resources"]["database_path"]
+        samplecomponent_ref_json = samplecomponent.to_reference().json
     script:
         os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************

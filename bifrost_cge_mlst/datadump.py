@@ -35,7 +35,7 @@ def datadump(samplecomponent_ref_json: Dict):
     samplecomponent = SampleComponent.load(samplecomponent_ref)
     sample = Sample.load(samplecomponent.sample)
     component = Component.load(samplecomponent.component)
-    database_path = component["resources"]["database_path"] 
+    database_path = f"{os.environ['BIFROST_INSTALL_DIR']}/bifrost/components/bifrost_{component['display_name']}/{component['resources']['database_path']}" 
     species_detection = sample.get_category("species_detection")
     species = species_detection["summary"].get("species", None)
     mlst_species = component["options"]["mlst_species_mapping"][species]
