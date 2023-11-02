@@ -8,7 +8,7 @@ from bifrostlib.datahandling import SampleComponent
 from bifrostlib.datahandling import Category
 from typing import Dict
 import os
-
+from pathlib import Path
 
 def run_cmd(command, log):
     with open(log.out_file, "a+") as out, open(log.err_file, "a+") as err:
@@ -19,6 +19,14 @@ def run_cmd(command, log):
             command_log_out = ""
         out.write(command_log_out)
         err.write(command_log_err)
+
+def check_db(db_path: object, mlst_entry: object, log: object):
+    checkpath = Path(db_path, mlst_entry)
+    if not checkpath.exists():
+        with open(log.err_file, "a+") as err:
+            err.write(f"MLST db path {checkpath} does not exist")
+        return False
+    return True
 
 def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: Dict, log: object) -> None:
     try:
@@ -41,11 +49,10 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
             mlst_species = component["options"]["mlst_species_mapping"][species]
             data_dict = {}
             for mlst_entry in mlst_species:
-                #print(mlst_entry)
+                if not check_db(database_path, mlst_entry, log):
+                    continue
                 mlst_entry_path = f"{component['name']}/{mlst_entry}"
-                #run_cmd("echo hello world", log)
                 run_cmd(f"if [ -d \"{mlst_entry_path}\" ]; then rm -r {mlst_entry_path}; fi", log)
-                #run_cmd(f"ls {database_path} -lah")
                 run_cmd(f"mkdir {mlst_entry_path}; mlst.py -x -matrix -s {mlst_entry} -p {database_path} -mp kma -i {reads[0]} {reads[1]} -o {mlst_entry_path}", log) # this cmd looks fucked up
                 data_dict[mlst_entry] = common.get_yaml(f"{mlst_entry_path}/data.json")
             common.save_yaml(data_dict, output_file)
