@@ -2,7 +2,7 @@ from setuptools import setup, find_namespace_packages
 
 setup(
     name='bifrost_cge_mlst',
-    version='2.2.9',
+    version='2.2.10',
     description='MLST component for Bifrost',
     url='https://github.com/ssi-dk/bifrost_cge_mlst',
     author='Kim Ng',

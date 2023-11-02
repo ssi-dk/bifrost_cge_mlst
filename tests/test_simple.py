@@ -26,7 +26,7 @@ def test_cwd():
     assert bifrost_install_dir != ''
 
 class TestCGEmlst:
-    component_name = "cge_mlst__v2.2.9"
+    component_name = "cge_mlst__v2.2.10"
     component_name = component_name + "__5e385d4"
 
     bifrost_install_dir = os.environ['BIFROST_INSTALL_DIR']
