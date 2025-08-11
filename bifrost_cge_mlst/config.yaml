@@ -81,7 +81,7 @@ options:
     "Campylobacter upsaliensis": [cupsaliensis]
     "Dichelobacter nodosus": [dnodosus]
     "Enterobacter cloacae": [ecloacae]
-    "Escherichia coli": [ecoli,ecoli_2]
+    "Escherichia coli": [ecoli1,ecoli2]
     "Edwardsiella": [edwardsiella]
     "Enterococcus faecalis": [efaecalis]
     "Enterococcus faecium": [efaecium]
