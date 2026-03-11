@@ -38,7 +38,9 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
         # Variables being used
         bifrost_install_dir = os.environ['BIFROST_INSTALL_DIR']
         database_path = f"{bifrost_install_dir}/bifrost/components/bifrost_{component['display_name']}/{component['resources']['database_path']}"
-        reads = input.reads  # expected a tuple of read locations
+
+        contigs = input.contigs  # expected a tuple of read locations
+
         output_file = output.complete  # a file to mark success for snakemake
         species_detection = sample.get_category("species_detection")
         species = species_detection["summary"].get("species", None)
@@ -53,7 +55,7 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
                     continue
                 mlst_entry_path = f"{component['name']}/{mlst_entry}"
                 run_cmd(f"if [ -d \"{mlst_entry_path}\" ]; then rm -r {mlst_entry_path}; fi", log)
-                run_cmd(f"mkdir {mlst_entry_path}; mlst.py -x -matrix -s {mlst_entry} -p {database_path} -mp kma -i {reads[0]} {reads[1]} -o {mlst_entry_path}", log) # this cmd looks fucked up
+                run_cmd(f"mkdir {mlst_entry_path}; mlst.py -x -matrix -s {mlst_entry} -p {database_path} -mp blastn -i {contigs} -o {mlst_entry_path}", log) # this cmd looks fucked up
                 data_dict[mlst_entry] = common.get_yaml(f"{mlst_entry_path}/data.json")
             common.save_yaml(data_dict, output_file)
 

@@ -92,7 +92,7 @@ rule cge_mlst:
     input:
         check_file = rules.check_requirements.output.check_file,
         folder = rules.setup.output.init_file,
-        reads = sample['categories']['paired_reads']['summary']['data']
+        contigs = sample['categories']['contigs']['summary']['data']
     output:
         complete = f"{component['name']}/data.yaml"
     params:
