@@ -10,35 +10,51 @@ from bifrostlib.datahandling import ComponentReference
 from bifrostlib.datahandling import Component
 from bifrostlib.datahandling import SampleComponentReference
 from bifrostlib.datahandling import SampleComponent
+from snakemake.io import directory
+import datetime
+
 os.umask(0o2)
 
 try:
     sample_ref = SampleReference(_id=config.get('sample_id', None), name=config.get('sample_name', None))
-    sample:Sample = Sample.load(sample_ref) # schema 2.1
+    sample: Sample = Sample.load(sample_ref)
     if sample is None:
         raise Exception("invalid sample passed")
+
     component_ref = ComponentReference(name=config['component_name'])
-    component:Component = Component.load(reference=component_ref) # schema 2.1
+    component: Component = Component.load(reference=component_ref)
     if component is None:
         raise Exception("invalid component passed")
-    samplecomponent_ref = SampleComponentReference(name=SampleComponentReference.name_generator(sample.to_reference(), component.to_reference()))
+
+    samplecomponent_ref = SampleComponentReference(
+        name=SampleComponentReference.name_generator(sample.to_reference(), component.to_reference())
+    )
     samplecomponent = SampleComponent.load(samplecomponent_ref)
     if samplecomponent is None:
-        samplecomponent:SampleComponent = SampleComponent(sample_reference=sample.to_reference(), component_reference=component.to_reference()) # schema 2.1
+        samplecomponent = SampleComponent(
+            sample_reference=sample.to_reference(),
+            component_reference=component.to_reference()
+        )
+
     common.set_status_and_save(sample, samplecomponent, "Running")
-except Exception as error:
+
+except Exception:
     print(traceback.format_exc(), file=sys.stderr)
     raise Exception("failed to set sample, component and/or samplecomponent")
+
 onerror:
     if not samplecomponent.has_requirements():
         common.set_status_and_save(sample, samplecomponent, "Requirements not met")
-    if samplecomponent['status'] == "Running":
+    if samplecomponent["status"] == "Running":
         common.set_status_and_save(sample, samplecomponent, "Failure")
-
 
 envvars:
     "BIFROST_INSTALL_DIR",
     "CONDA_PREFIX"
+
+# -------------------------------------------------------------------------
+# MAIN + TIMING
+# -------------------------------------------------------------------------
 
 
 rule all:
