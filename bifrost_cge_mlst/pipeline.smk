@@ -148,7 +148,8 @@ rule git_version:
         import subprocess, os
 
         snake_dir = os.path.dirname(workflow.snakefile)
-
+        print(f"snake dir {snake_dir}")
+	    
         # Best effort: get commit hash; if not a git repo, write "-"
         try:
             git_hash = subprocess.check_output(
@@ -156,6 +157,7 @@ rule git_version:
                 stderr=subprocess.STDOUT,
                 text=True
             ).strip()
+	    print(f"git hash {git_hash}")
         except Exception as e:
             git_hash = "-"
             os.makedirs(os.path.dirname(log.err_file), exist_ok=True)
@@ -212,7 +214,7 @@ rule datadump:
     output:
         complete = rules.all.input
     params:
-        samplecomponent_ref_json = samplecomponent.to_reference().json
+        samplecomponent_id = samplecomponent["_id"]
     script:
         os.path.join(os.path.dirname(workflow.snakefile), "datadump.py")
 #- Templated section: end --------------------------------------------------------------------------

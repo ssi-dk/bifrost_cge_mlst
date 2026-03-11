@@ -29,8 +29,9 @@ def extract_mlst(mlst: Category, results: Dict, component_name: str, species) ->
         })
     results[file_key]['sequence_type'] = mlst['summary']['sequence_type']
 
-def datadump(samplecomponent_ref_json: Dict):
-    samplecomponent_ref = SampleComponentReference(value=samplecomponent_ref_json)
+def datadump(samplecomponent_id: str):
+    #samplecomponent_ref = SampleComponentReference(value=samplecomponent_ref_json)
+    samplecomponent_ref = SampleComponentReference(_id=samplecomponent_id)
     samplecomponent = SampleComponent.load(samplecomponent_ref)
     sample = Sample.load(samplecomponent.sample)
     component = Component.load(samplecomponent.component)
@@ -46,6 +47,8 @@ def datadump(samplecomponent_ref_json: Dict):
 
     db_repo = Repo(database_path)
     db_commit = str(db_repo.head.commit)
+    print(f"db repo {db_repo}")
+    print(f"db commit {db_commit}")
 
     mlst = Category(value={
         "name": "mlst",
@@ -75,5 +78,5 @@ def datadump(samplecomponent_ref_json: Dict):
         fh.write("done")
 
 datadump(
-    snakemake.params.samplecomponent_ref_json,
+    snakemake.params.samplecomponent_id
 )

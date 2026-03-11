@@ -11,10 +11,16 @@ from pathlib import Path
 
 def run_cmd(command, log):
     with open(log.out_file, "a+") as out, open(log.err_file, "a+") as err:
-        command_log_out, command_log_err = subprocess.Popen(command, shell=True).communicate()
-        out.write(command_log_out or "")
-        err.write(command_log_err or "")
-
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        command_log_out, command_log_err = process.communicate()
+        out.write((command_log_out or b"").decode())
+        err.write((command_log_err or b"").decode())
+        
 def check_db(db_path, mlst_entry, log):
     checkpath = Path(db_path, mlst_entry)
     if not checkpath.exists():
