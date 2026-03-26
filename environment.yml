@@ -3,9 +3,8 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - snakemake-minimal==5.31.1 # updated from 5.7.1 because of envvars
+  - snakemake-minimal
   - mlst-cge==2.0.9
-  - kma==1.4.9
   - git
   - pip
   - pip:
@@ -16,5 +15,5 @@ dependencies:
     - pyyaml
     - argh
     - watchdog
-    - bifrostlib
+    - bifrostlib==2.1.20
     - -e .
