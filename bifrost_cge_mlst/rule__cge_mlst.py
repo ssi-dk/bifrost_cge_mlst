@@ -5,22 +5,23 @@ from bifrostlib import common
 from bifrostlib.datahandling import Component, Sample
 from bifrostlib.datahandling import SampleComponentReference
 from bifrostlib.datahandling import SampleComponent
-from bifrostlib.datahandling import Category
 from typing import Dict
 import os
 from pathlib import Path
 
 def run_cmd(command, log):
     with open(log.out_file, "a+") as out, open(log.err_file, "a+") as err:
-        command_log_out, command_log_err = subprocess.Popen(command, shell=True).communicate()
-        if command_log_err == None:
-            command_log_err = ""
-        if command_log_out == None:
-            command_log_out = ""
-        out.write(command_log_out)
-        err.write(command_log_err)
-
-def check_db(db_path: object, mlst_entry: object, log: object):
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        command_log_out, command_log_err = process.communicate()
+        out.write((command_log_out or b"").decode())
+        err.write((command_log_err or b"").decode())
+        
+def check_db(db_path, mlst_entry, log):
     checkpath = Path(db_path, mlst_entry)
     if not checkpath.exists():
         with open(log.err_file, "a+") as err:
@@ -28,23 +29,24 @@ def check_db(db_path: object, mlst_entry: object, log: object):
         return False
     return True
 
-def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: Dict, log: object) -> None:
+def rule__run_cge_mlst(input, output, samplecomponent_ref_json, log):
     try:
         samplecomponent_ref = SampleComponentReference(value=samplecomponent_ref_json)
         samplecomponent = SampleComponent.load(samplecomponent_ref)
         sample = Sample.load(samplecomponent.sample)
         component = Component.load(samplecomponent.component)
 
-        # Variables being used
         bifrost_install_dir = os.environ['BIFROST_INSTALL_DIR']
         database_path = f"{bifrost_install_dir}/bifrost/components/bifrost_{component['display_name']}/{component['resources']['database_path']}"
-        reads = input.reads  # expected a tuple of read locations
-        output_file = output.complete  # a file to mark success for snakemake
+
+        contigs = input.contigs
+        output_file = output.complete
+
         species_detection = sample.get_category("species_detection")
         species = species_detection["summary"].get("species", None)
-        # Code to run
+
         if species not in component["options"]["mlst_species_mapping"]:
-            run_cmd(f"touch {component['name']}/no_mlst_species_DB")
+            run_cmd(f"touch {component['name']}/no_mlst_species_DB", log)
         else:
             mlst_species = component["options"]["mlst_species_mapping"][species]
             data_dict = {}
@@ -52,15 +54,19 @@ def rule__run_cge_mlst(input: object, output: object, samplecomponent_ref_json: 
                 if not check_db(database_path, mlst_entry, log):
                     continue
                 mlst_entry_path = f"{component['name']}/{mlst_entry}"
-                run_cmd(f"if [ -d \"{mlst_entry_path}\" ]; then rm -r {mlst_entry_path}; fi", log)
-                run_cmd(f"mkdir {mlst_entry_path}; mlst.py -x -matrix -s {mlst_entry} -p {database_path} -mp kma -i {reads[0]} {reads[1]} -o {mlst_entry_path}", log) # this cmd looks fucked up
+                run_cmd(f"rm -rf {mlst_entry_path}; mkdir {mlst_entry_path}", log)
+                run_cmd(
+                    f"mlst.py -x -matrix -s {mlst_entry} -p {database_path} "
+                    f"-mp blastn -i {contigs} -o {mlst_entry_path}",
+                    log
+                )
                 data_dict[mlst_entry] = common.get_yaml(f"{mlst_entry_path}/data.json")
+
             common.save_yaml(data_dict, output_file)
 
     except Exception:
         with open(log.err_file, "w+") as fh:
             fh.write(traceback.format_exc())
-
 
 rule__run_cge_mlst(
     snakemake.input,
