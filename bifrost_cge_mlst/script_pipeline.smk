@@ -2,7 +2,6 @@
 import os
 import sys
 import traceback
-import json
 
 from bifrostlib import common
 from bifrostlib.datahandling import SampleReference
@@ -117,18 +116,11 @@ rule cge_mlst:
     output:
         complete = f"{component['name']}/data.yaml"
     params:
-        samplecomponent_ref_json = json.dumps(samplecomponent.to_reference().json),
-        mlst_env = "bifrost_dev_cge_mlst_v2.0.9"
-    shell:
-        r"""
-        python {workflow.basedir}/rule__cge_mlst.py \
-            --contigs {input.contigs:q} \
-            --output {output.complete:q} \
-            --samplecomponent_ref_json {params.samplecomponent_ref_json:q} \
-            --log_out {log.out_file:q} \
-            --log_err {log.err_file:q} \
-            --mlst_env {params.mlst_env:q}
-        """
+        samplecomponent_ref_json = samplecomponent.to_reference().json
+    conda:
+        'bifrost_dev_cge_mlst_v2.0.9'
+    script:
+        os.path.join(os.path.dirname(workflow.snakefile), "rule__cge_mlst.py")
 #* Dynamic section: end ****************************************************************************
 
 rule set_time_end:

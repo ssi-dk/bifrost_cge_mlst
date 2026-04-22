@@ -45,11 +45,15 @@ def datadump(samplecomponent_id: str):
     species = species_detection["summary"].get("species", None)
     mlst_species = component["options"]["mlst_species_mapping"][species]
 
-    db_repo = Repo(database_path)
-    db_commit = str(db_repo.head.commit)
-    print(f"db repo {db_repo}")
-    print(f"db commit {db_commit}")
-
+    try:
+        db_repo = Repo(database_path)
+        db_commit = str(db_repo.head.commit)
+        print(f"db repo {db_repo}")
+        print(f"db commit {db_commit}")
+    except Exception:
+        db_repo = "Error"
+        db_commit = "Error"
+        
     mlst = Category(value={
         "name": "mlst",
         "component": {

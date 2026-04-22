@@ -4,14 +4,9 @@ channels:
   - defaults
 dependencies:
   - snakemake-minimal
-  - mlst-cge==2.0.9
   - git
   - pip
   - pip:
-    - pytest
-    - pytest-cov
-    - pytest-profiling
-    - coverage
     - pyyaml
     - argh
     - watchdog
