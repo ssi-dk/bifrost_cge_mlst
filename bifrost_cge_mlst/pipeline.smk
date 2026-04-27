@@ -118,7 +118,7 @@ rule cge_mlst:
         complete = f"{component['name']}/data.yaml"
     params:
         samplecomponent_ref_json = json.dumps(samplecomponent.to_reference().json),
-        mlst_env = "bifrost_dev_cge_mlst_v2.0.9"
+        mlst_env = "bifrost_{os.environ["BIFROST_STAGE"]}_cge_mlst"
     shell:
         r"""
         python {workflow.basedir}/rule__cge_mlst.py \
