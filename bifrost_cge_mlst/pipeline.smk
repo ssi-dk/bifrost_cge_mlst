@@ -97,14 +97,14 @@ rule cge_mlst:
         out_file = f"{component['name']}/log/{rule_name}.out.log",
         err_file = f"{component['name']}/log/{rule_name}.err.log",
     benchmark:
-        f"{component['name']}/benchmarks/{rule_name}.benchmark"
+        f"{component['name']}/benchmarks/{rule_name}.benchmark",
     input:
-        contigs = sample['categories']['contigs']['summary']['data']
+        contigs = sample['categories']['contigs']['summary']['data'],
     output:
-        complete = f"{component['name']}/data.yaml"
+        complete = f"{component['name']}/data.yaml",
     params:
         samplecomponent_ref_json = json.dumps(samplecomponent.to_reference().json),
-        mlst_env = "bifrost_{os.environ["BIFROST_STAGE"]}_cge_mlst"
+        mlst_env = f'bifrost_{os.environ["BIFROST_STAGE"]}_cge_mlst',
     shell:
         r"""
         python {workflow.basedir}/rule__cge_mlst.py \
