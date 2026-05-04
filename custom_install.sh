@@ -1,26 +1,36 @@
 #!/bin/bash
-#Script executes these command with some safeguards in place in case it fails:
-#git clone https://git@bitbucket.org/genomicepidemiology/mlst_db.git
-#cd mlst_db
-#git checkout 5e385d4
-#python3 INSTALL.py kma_index
+set -u
 
-ENV_NAME=$1
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <env_name>"
+  exit 1
+fi
+
+ENV_NAME="$1"
+
+STAGE="${BIFROST_STAGE:+${BIFROST_STAGE}_}"
+
+CGE_MLST_ENV_NAME="bifrost_${STAGE}cge_mlst"
+CGE_MLST_CONDA_SPEC_FILE="envs/cge_mlst-conda-spec.txt"
 
 GIT_REPO_PATH=git@bitbucket.org:genomicepidemiology/mlst_db.git
 GIT_CHECKOUT_HASH=efcda45 # Updated on 16/06/25
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-cd $SCRIPT_DIR # avoiding small edge case where bashrc sourcing changes your directory
 
-function exit_function() {
-  echo "to rerun use the command:"
-  echo "bash -i $SCRIPT_DIR/custom_install.sh $ENV_NAME"
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo $SCRIPT_DIR
+cd "$SCRIPT_DIR" || exit 1
+
+exit_function() {
+  echo
+  echo "To rerun use the command:"
+  echo "bash -i \"$SCRIPT_DIR/custom_install.sh\" \"$ENV_NAME\""
   exit 1
 }
 
-CONDA_BASE=$(conda info --base)
-source $CONDA_BASE/etc/profile.d/conda.sh
+CONDA_BASE="$(conda info --base)"
+# shellcheck disable=SC1091
+source "$CONDA_BASE/etc/profile.d/conda.sh"
 
 if ! (conda env list | grep "$ENV_NAME")
 then
@@ -28,6 +38,36 @@ then
   exit_function
 else
   conda activate $ENV_NAME
+fi
+
+if conda env list | awk '{print $1}' | grep -Fxq "$CGE_MLST_ENV_NAME"; then
+  echo "Environment '$CGE_MLST_ENV_NAME' is already created"
+  echo
+  echo "If you want to recreate it, remove it first:"
+  echo "conda env remove --name \"$CGE_MLST_ENV_NAME\""
+  exit_function
+fi
+
+if [ ! -f "$CGE_MLST_CONDA_SPEC_FILE" ]; then
+  echo "Conda spec file cannot be found:"
+  echo "$CGE_MLST_CONDA_SPEC_FILE"
+  exit_function
+fi
+
+echo "Creating conda env '$CGE_MLST_ENV_NAME' from explicit spec file"
+if ! mamba create --name "$CGE_MLST_ENV_NAME" --file "$CGE_MLST_CONDA_SPEC_FILE" -y; then
+  echo >&2 "Failed to create conda env from spec file"
+  exit_function
+fi
+
+echo "Environment '$CGE_MLST_ENV_NAME' created successfully"
+
+if ! (conda env list | grep "$ENV_NAME")
+then
+  echo "conda environment specified is not found"
+  exit_function
+else
+  conda activate $CGE_MLST_ENV_NAME
 fi
 
 RESOURCES="$SCRIPT_DIR/resources"
